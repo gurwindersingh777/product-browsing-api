@@ -269,13 +269,17 @@
 
 <div class="grid">
 
-  <!-- LEFT: Controls -->
   <div>
     <div class="panel">
       <h2>Request</h2>
 
       <label>Base URL</label>
-      <input type="text" id="baseUrl" value="http://localhost:3000/products" />
+      <input type="text" id="baseUrl" value="" />
+      <script>
+        document.getElementById('baseUrl').value = window.location.hostname === 'localhost' 
+          ? 'http://localhost:3000/products' 
+          : 'https://product-browsing-api-vfh9.onrender.com/products';
+      </script>
 
       <label>Category (optional)</label>
       <input type="text" id="category" placeholder="e.g. Electronics" />
@@ -297,7 +301,6 @@
       </div>
     </div>
 
-    <!-- Session State -->
     <div class="panel" style="margin-top: 16px;">
       <h2>Session State</h2>
       <div class="state-grid">
@@ -327,7 +330,6 @@
         <div class="state-value mono" id="stateCursor" style="max-height:48px;overflow:hidden;">—</div>
       </div>
 
-      <!-- Duplicate tracker -->
       <div class="tracker" id="tracker" style="display:none;">
         <div class="tracker-title">🔍 Duplicate / Missing Check</div>
         <div class="tracker-row">
@@ -346,7 +348,6 @@
     </div>
   </div>
 
-  <!-- RIGHT: Response -->
   <div class="panel">
     <div class="res-header">
       <h2 style="margin-bottom:0">Response</h2>
@@ -379,15 +380,15 @@
 
   // ── Core fetch ─────────────────────────────────────
   async function doFetch(overrideParams = {}) {
-    const base     = document.getElementById('baseUrl').value.trim();
+    const base       = document.getElementById('baseUrl').value.trim();
     const category = document.getElementById('category').value.trim();
 
     const params = new URLSearchParams();
     if (category) params.set('category', category);
-    if (overrideParams.cursor      ?? nextCursor)     params.set('cursor',       overrideParams.cursor      ?? nextCursor);
+    if (overrideParams.cursor     ?? nextCursor)    params.set('cursor',       overrideParams.cursor      ?? nextCursor);
     if (overrideParams.snapshotTime ?? snapshotTime)  params.set('snapshotTime', overrideParams.snapshotTime ?? snapshotTime);
     // allow override to forcibly blank a param
-    if (overrideParams.cursor      === '')      params.delete('cursor');
+    if (overrideParams.cursor     === '')     params.delete('cursor');
     if (overrideParams.snapshotTime === '')     params.delete('snapshotTime');
 
     const url = params.toString() ? `${base}?${params}` : base;
@@ -554,7 +555,7 @@
       el.className    = 'badge badge-loading';
       return;
     }
-    if (status >= 200 && status < 300) { el.textContent = `${status} OK`;    el.className = 'badge badge-200'; }
+    if (status >= 200 && status < 300) { el.textContent = `${status} OK`;   el.className = 'badge badge-200'; }
     else if (status >= 400 && status < 500) { el.textContent = `${status} Error`; el.className = 'badge badge-400'; }
     else { el.textContent = `${status || 'Error'}`; el.className = 'badge badge-500'; }
   }
