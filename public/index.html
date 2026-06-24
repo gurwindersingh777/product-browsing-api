@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product API Tester</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #1e2330;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .panel h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 5px;
+      margin-top: 12px;
+    }
+
+    label:first-of-type { margin-top: 0; }
+
+    input, select {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      color: #e2e8f0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #6366f1;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary   { background: #6366f1; color: #fff; }
+    .btn-secondary { background: #1e3a5f; color: #93c5fd; border: 1px solid #2d5a8e; }
+    .btn-danger    { background: #1a1a2e; color: #f87171; border: 1px solid #4b2222; }
+
+    .divider {
+      height: 1px;
+      background: #2d3748;
+      margin: 14px 0;
+    }
+
+    .quick-title {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .quick-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-quick {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #0f1117;
+      color: #cbd5e1;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .btn-quick:hover { border-color: #6366f1; color: #a5b4fc; }
+
+    /* State Panel */
+    .state-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .state-box {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .state-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .state-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .state-value.green { color: #4ade80; }
+    .state-value.yellow { color: #facc15; }
+    .state-value.red { color: #f87171; }
+    .state-value.mono {
+      font-family: monospace;
+      font-size: 11px;
+      word-break: break-all;
+      color: #818cf8;
+    }
+
+    /* URL bar */
+    .url-bar {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+
+    .url-bar span { color: #818cf8; }
+
+    /* Response */
+    .res-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-200 { background: #14532d; color: #4ade80; }
+    .badge-400 { background: #451a03; color: #fb923c; }
+    .badge-500 { background: #450a0a; color: #f87171; }
+    .badge-loading { background: #1e1b4b; color: #818cf8; }
+
+    .res-time {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    pre {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 12px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      overflow-x: auto;
+      max-height: 520px;
+      overflow-y: auto;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    /* Syntax highlighting */
+    .json-key    { color: #7dd3fc; }
+    .json-string { color: #86efac; }
+    .json-number { color: #fbbf24; }
+    .json-bool   { color: #f472b6; }
+    .json-null   { color: #94a3b8; }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: #475569;
+    }
+
+    .empty-state .icon { font-size: 32px; margin-bottom: 10px; }
+    .empty-state p { font-size: 13px; }
+
+    /* IDs tracker */
+    .tracker {
+      margin-top: 12px;
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .tracker-title { font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+    .tracker-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+    .tracker-ok  { color: #4ade80; font-weight: 600; }
+    .tracker-err { color: #f87171; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<h1>🛍 Product API Tester</h1>
+<p class="subtitle">Manual browser testing for localhost — keyset pagination + snapshot consistency</p>
+
+<div class="grid">
+
+  <!-- LEFT: Controls -->
+  <div>
+    <div class="panel">
+      <h2>Request</h2>
+
+      <label>Base URL</label>
+      <input type="text" id="baseUrl" value="http://localhost:3000/products" />
+
+      <label>Category (optional)</label>
+      <input type="text" id="category" placeholder="e.g. Electronics" />
+
+      <div class="btn-group">
+        <button class="btn-primary" onclick="fetchPage1()">▶ First Page (New Session)</button>
+        <button class="btn-secondary" id="btnNext" onclick="fetchNextPage()" disabled>→ Next Page</button>
+        <button class="btn-danger" onclick="resetAll()">✕ Reset</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="quick-title">⚡ Quick Error Tests</div>
+      <div class="quick-group">
+        <button class="btn-quick" onclick="testInvalidCursor()">Invalid cursor → expect 400</button>
+        <button class="btn-quick" onclick="testInvalidSnapshot()">Invalid snapshotTime → expect 400/500</button>
+        <button class="btn-quick" onclick="testBadCategory()">Category with no results</button>
+        <button class="btn-quick" onclick="testAllCategories()">All 8 categories (page 1 each)</button>
+      </div>
+    </div>
+
+    <!-- Session State -->
+    <div class="panel" style="margin-top: 16px;">
+      <h2>Session State</h2>
+      <div class="state-grid">
+        <div class="state-box">
+          <div class="state-label">Page</div>
+          <div class="state-value green" id="statePage">—</div>
+        </div>
+        <div class="state-box">
+          <div class="state-label">Has More</div>
+          <div class="state-value" id="stateHasMore">—</div>
+        </div>
+        <div class="state-box">
+          <div class="state-label">Items This Page</div>
+          <div class="state-value yellow" id="stateCount">—</div>
+        </div>
+        <div class="state-box">
+          <div class="state-label">Total Fetched</div>
+          <div class="state-value yellow" id="stateTotal">—</div>
+        </div>
+      </div>
+      <div class="state-box" style="margin-bottom:8px">
+        <div class="state-label">snapshotTime (locked for session)</div>
+        <div class="state-value mono" id="stateSnapshot">—</div>
+      </div>
+      <div class="state-box">
+        <div class="state-label">nextCursor</div>
+        <div class="state-value mono" id="stateCursor" style="max-height:48px;overflow:hidden;">—</div>
+      </div>
+
+      <!-- Duplicate tracker -->
+      <div class="tracker" id="tracker" style="display:none;">
+        <div class="tracker-title">🔍 Duplicate / Missing Check</div>
+        <div class="tracker-row">
+          <span>Total IDs collected:</span>
+          <span id="trkTotal">0</span>
+        </div>
+        <div class="tracker-row">
+          <span>Unique IDs:</span>
+          <span id="trkUnique">0</span>
+        </div>
+        <div class="tracker-row">
+          <span>Duplicates:</span>
+          <span id="trkDup" class="tracker-ok">None ✅</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Response -->
+  <div class="panel">
+    <div class="res-header">
+      <h2 style="margin-bottom:0">Response</h2>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span class="res-time" id="resTime"></span>
+        <span class="badge" id="resBadge" style="display:none;"></span>
+      </div>
+    </div>
+
+    <div class="url-bar" id="urlBar">Waiting for first request…</div>
+
+    <div id="responseArea">
+      <div class="empty-state">
+        <div class="icon">🔌</div>
+        <p>Hit <strong>First Page</strong> to start testing</p>
+        <p style="margin-top:6px; font-size:11px;">Make sure your server is running on <code>localhost:3000</code></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────
+  let snapshotTime = null;
+  let nextCursor   = null;
+  let pageNum      = 0;
+  let totalFetched = 0;
+  let allIds       = [];
+
+  // ── Core fetch ─────────────────────────────────────
+  async function doFetch(overrideParams = {}) {
+    const base     = document.getElementById('baseUrl').value.trim();
+    const category = document.getElementById('category').value.trim();
+
+    const params = new URLSearchParams();
+    if (category) params.set('category', category);
+    if (overrideParams.cursor      ?? nextCursor)     params.set('cursor',       overrideParams.cursor      ?? nextCursor);
+    if (overrideParams.snapshotTime ?? snapshotTime)  params.set('snapshotTime', overrideParams.snapshotTime ?? snapshotTime);
+    // allow override to forcibly blank a param
+    if (overrideParams.cursor      === '')      params.delete('cursor');
+    if (overrideParams.snapshotTime === '')     params.delete('snapshotTime');
+
+    const url = params.toString() ? `${base}?${params}` : base;
+    document.getElementById('urlBar').innerHTML = `<span>${url}</span>`;
+
+    showBadge('loading', '⟳ Loading…');
+    document.getElementById('resTime').textContent = '';
+
+    const t0 = performance.now();
+    try {
+      const res  = await fetch(url);
+      const ms   = Math.round(performance.now() - t0);
+      const json = await res.json();
+
+      document.getElementById('resTime').textContent = `${ms}ms`;
+      showBadge(res.status);
+      renderJSON(json);
+      return { ok: res.ok, status: res.status, json };
+    } catch (err) {
+      const ms = Math.round(performance.now() - t0);
+      document.getElementById('resTime').textContent = `${ms}ms`;
+      showBadge(0);
+      document.getElementById('responseArea').innerHTML =
+        `<pre style="color:#f87171;">❌ ${err.message}\n\nIs your server running on localhost:3000?</pre>`;
+      return null;
+    }
+  }
+
+  // ── Fetch first page ───────────────────────────────
+  async function fetchPage1() {
+    resetState();
+    const result = await doFetch({ cursor: '', snapshotTime: '' });
+    if (!result || !result.ok) return;
+
+    pageNum = 1;
+    snapshotTime = result.json.pagination?.snapshotTime ?? null;
+    nextCursor   = result.json.pagination?.nextCursor   ?? null;
+    const data   = result.json.data ?? [];
+
+    totalFetched += data.length;
+    allIds.push(...data.map(p => p.id));
+
+    updateState(result.json);
+  }
+
+  // ── Fetch next page ────────────────────────────────
+  async function fetchNextPage() {
+    if (!nextCursor || !snapshotTime) return;
+    const result = await doFetch();
+    if (!result || !result.ok) return;
+
+    pageNum++;
+    nextCursor   = result.json.pagination?.nextCursor ?? null;
+    const data   = result.json.data ?? [];
+
+    totalFetched += data.length;
+    allIds.push(...data.map(p => p.id));
+
+    updateState(result.json);
+  }
+
+  // ── Quick tests ─────────────────────────────────────
+  async function testInvalidCursor() {
+    resetState();
+    await doFetch({ cursor: 'notValidBase64!!', snapshotTime: '' });
+  }
+
+  async function testInvalidSnapshot() {
+    resetState();
+    await doFetch({ cursor: '', snapshotTime: 'not-a-date' });
+  }
+
+  async function testBadCategory() {
+    document.getElementById('category').value = 'DoesNotExist';
+    resetState();
+    await doFetch({ cursor: '', snapshotTime: '' });
+  }
+
+  async function testAllCategories() {
+    const cats = ['Electronics','Fashion','Home','Sports','Books','Beauty','Toys','Grocery'];
+    const results = [];
+    for (const cat of cats) {
+      const base = document.getElementById('baseUrl').value.trim();
+      const url  = `${base}?category=${cat}`;
+      try {
+        const res  = await fetch(url);
+        const json = await res.json();
+        results.push({ category: cat, count: json.data?.length ?? 0, hasMore: json.pagination?.hasMore });
+      } catch {
+        results.push({ category: cat, error: true });
+      }
+    }
+
+    document.getElementById('urlBar').innerHTML = '<span>Quick test — all 8 categories (page 1)</span>';
+    showBadge(200);
+    renderJSON({ results });
+  }
+
+  // ── State & UI helpers ──────────────────────────────
+  function updateState(json) {
+    const data    = json.data ?? [];
+    const hasMore = json.pagination?.hasMore;
+
+    document.getElementById('statePage').textContent    = pageNum;
+    document.getElementById('stateCount').textContent   = data.length;
+    document.getElementById('stateTotal').textContent   = totalFetched;
+    document.getElementById('stateSnapshot').textContent = snapshotTime ?? '—';
+    document.getElementById('stateCursor').textContent  = nextCursor ? nextCursor.slice(0, 60) + '…' : 'null (end)';
+
+    const hmEl = document.getElementById('stateHasMore');
+    hmEl.textContent = hasMore ? 'true' : 'false';
+    hmEl.className   = 'state-value ' + (hasMore ? 'green' : 'red');
+
+    document.getElementById('btnNext').disabled = !nextCursor;
+
+    // Duplicate tracker
+    const tracker = document.getElementById('tracker');
+    tracker.style.display = 'block';
+    const unique = new Set(allIds).size;
+    const dups   = allIds.length - unique;
+    document.getElementById('trkTotal').textContent  = allIds.length;
+    document.getElementById('trkUnique').textContent = unique;
+    const dupEl = document.getElementById('trkDup');
+    dupEl.textContent = dups > 0 ? `${dups} ❌` : 'None ✅';
+    dupEl.className   = dups > 0 ? 'tracker-err' : 'tracker-ok';
+  }
+
+  function resetState() {
+    snapshotTime = null;
+    nextCursor   = null;
+    pageNum      = 0;
+    totalFetched = 0;
+    allIds       = [];
+
+    document.getElementById('statePage').textContent    = '—';
+    document.getElementById('stateHasMore').textContent = '—';
+    document.getElementById('stateHasMore').className   = 'state-value';
+    document.getElementById('stateCount').textContent   = '—';
+    document.getElementById('stateTotal').textContent   = '—';
+    document.getElementById('stateSnapshot').textContent = '—';
+    document.getElementById('stateCursor').textContent  = '—';
+    document.getElementById('btnNext').disabled = true;
+    document.getElementById('tracker').style.display = 'none';
+  }
+
+  function resetAll() {
+    resetState();
+    document.getElementById('category').value = '';
+    document.getElementById('urlBar').innerHTML = 'Waiting for first request…';
+    document.getElementById('resBadge').style.display = 'none';
+    document.getElementById('resTime').textContent = '';
+    document.getElementById('responseArea').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔌</div>
+        <p>Hit <strong>First Page</strong> to start testing</p>
+      </div>`;
+  }
+
+  function showBadge(status, label) {
+    const el = document.getElementById('resBadge');
+    el.style.display = 'inline-block';
+    if (label) {
+      el.textContent  = label;
+      el.className    = 'badge badge-loading';
+      return;
+    }
+    if (status >= 200 && status < 300) { el.textContent = `${status} OK`;    el.className = 'badge badge-200'; }
+    else if (status >= 400 && status < 500) { el.textContent = `${status} Error`; el.className = 'badge badge-400'; }
+    else { el.textContent = `${status || 'Error'}`; el.className = 'badge badge-500'; }
+  }
+
+  function renderJSON(obj) {
+    const html = syntaxHighlight(JSON.stringify(obj, null, 2));
+    document.getElementById('responseArea').innerHTML = `<pre>${html}</pre>`;
+  }
+
+  function syntaxHighlight(json) {
+    return json
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*(?:[eE][+\-]?\d+)?)/g, (match) => {
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) return `<span class="json-key">${match}</span>`;
+          return `<span class="json-string">${match}</span>`;
+        }
+        if (/true|false/.test(match)) return `<span class="json-bool">${match}</span>`;
+        if (/null/.test(match))       return `<span class="json-null">${match}</span>`;
+        return `<span class="json-number">${match}</span>`;
+      });
+  }
+</script>
+
+</body>
+</html>
