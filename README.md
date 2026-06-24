@@ -263,8 +263,7 @@ project/
 
 ```bash
 # 1. Clone the repo
-git clone <your-repo-url>
-cd <project-folder>
+git clone https://github.com/gurwindersingh777/product-browsing-api
 
 # 2. Install dependencies
 npm install
